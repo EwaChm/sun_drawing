@@ -1,0 +1,222 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>Narysuj Słońce - Tutorial</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            display: flex;
+            /*ustaw elementy elastycznie*/
+            flex-direction: column;
+            /* ustawić elementy w pionie */
+            align-items: center;
+            /* wyrównaj elementy do środka w pozimie*/
+            background-color: #f0f8ff;
+            /* ustaw kolor na jasnoniebieski*/
+        }
+
+        .container {
+            /* styl dla contenera*/
+            text-align: center;
+            max-width: 800px;
+            padding: 20px;
+        }
+
+        canvas {
+            /* płótno*/
+            border: 2px solid #ffd700;
+            background-color: white;
+            margin: 20px 0;
+            /*margines górny i dolny*/
+        }
+
+        button {
+            padding: 10px 20px;
+            font-size: 16px;
+            background-color: #ffd700;
+            border: none;
+            border-radius: 5px;
+            /* Zaokrąglone rogi */
+            cursor: pointer;
+            /* Kursor zmienia się na rączkę przy najechaniu */
+            margin: 10px;
+            transition: background-color 0.3s;
+            /* Płynna zmiana koloru */
+        }
+
+        button:hover {
+            background-color: #ffed4a;
+            /* Jaśniejszy kolor przy najechaniu */
+            transform: scale(1.05);
+            /* Powiększenie przycisku o 5% */
+        }
+
+        .step {
+            margin: 20px 0;
+            padding: 15px;
+            background-color: white;
+            border-radius: 10px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+            /* Delikatny cień */
+        }
+
+        .progress {
+            /*selektor wskazujący na element HTML z klasą progress*/
+            margin: 10px 0;
+            font-size: 14px;
+            color: #666;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <h1>Naucz się rysować słońce!</h1>
+        <canvas id="sunCanvas" width="200" height="200"></canvas>
+        <div class="controls">
+            <button onclick="drawNextStep()">Następny krok</button> <!--  przycisk wykonuje kolejny krok -->
+            <button onclick="resetCanvas()">Zacznij od nowa</button> <!--  wyczyść płótno -->
+        </div>
+        <div id="progress" class="progress"></div> <!-- pole postępu-->
+        <div id="instruction" class="step"> <!-- pole instrukcji-->
+            Kliknij "Następny krok" aby zacząć!
+        </div>
+    </div>
+
+    <script>
+        const canvas = document.getElementById('sunCanvas');
+        const ctx = canvas.getContext('2d');
+        let currentStep = -1; //zakłaka w książce a -1 oznacza że jeszcze nie zaczęliśmy
+
+        //nasze płotno
+        const player = {
+            x: 80,  // px
+            y: 80,
+            size: 40
+        };
+
+        const steps = [
+            {
+                //funkcja która wykona rysowanie
+                rysuj: function () {
+                    ctx.beginPath();
+                    ctx.arc(100, 100, 40, 0, 2 * Math.PI); // x,y => pozycja środka okręgu, r=40 => promień okręgu, kąt początkowy, 
+                    //kąt koncoy=> 360
+                    ctx.strokeStyle = '#666'; //linia koloru szarego
+                    ctx.stroke(); //tutaj wykonuje się rysowanie
+                },
+                tytul: 'Krok 1: Narysuj okrąg - to będzie podstawa słońca'
+            },
+            {
+                rysuj: function () {
+                    ctx.fillStyle = '#FFE5B4';
+                    ctx.fill();
+                },
+                tytul: 'Krok 2: Dodaj kolor jasny żółty'
+            },
+            {
+                rysuj: function () {
+                    ctx.fillStyle = '#FFD700';
+                    ctx.fill();
+                },
+                tytul: 'Krok 3: Wzmocnij kolor na złoty'
+            },
+            {
+                rysuj: function() {
+                    // Krótkie promienie
+                    for(let i = 0; i < 12; i++) {
+                        ctx.beginPath();
+                        const angle = (i * Math.PI / 6);
+                        const startX = 100 + Math.cos(angle) * 40;
+                        const startY = 100 + Math.sin(angle) * 40;
+                        const endX = 100 + Math.cos(angle) * 50;
+                        const endY = 100 + Math.sin(angle) * 50;
+                        
+                        ctx.moveTo(startX, startY);
+                        ctx.lineTo(endX, endY);
+                        ctx.strokeStyle = '#FFB700';
+                        ctx.lineWidth = 2;
+                        ctx.stroke();
+                    }
+                },
+                tytul: 'Krok 4: Dodaj krótkie promienie słoneczne'
+            },
+            {
+                rysuj: function() {
+                    // Długie promienie
+                    for(let i = 0; i < 8; i++) {
+                        ctx.beginPath();
+                        const angle = (i * Math.PI / 4) + (Math.PI / 8);
+                        const startX = 100 + Math.cos(angle) * 40;
+                        const startY = 100 + Math.sin(angle) * 40;
+                        const endX = 100 + Math.cos(angle) * 70;
+                        const endY = 100 + Math.sin(angle) * 70;
+                        
+                        ctx.moveTo(startX, startY);
+                        ctx.lineTo(endX, endY);
+                        ctx.strokeStyle = '#FFA500';
+                        ctx.lineWidth = 3;
+                        ctx.stroke();
+                    }
+                },
+                tytul: 'Krok 5: Dodaj długie promienie słoneczne'
+            },
+            {
+                rysuj: function() {
+                    // Wewnętrzny gradient
+                    ctx.beginPath();
+                    const gradient = ctx.createRadialGradient(100, 100, 0, 100, 100, 40);
+                    gradient.addColorStop(0, '#FFFF00');
+                    gradient.addColorStop(1, '#FFD700');
+                    ctx.fillStyle = gradient;
+                    ctx.arc(100, 100, 40, 0, 2 * Math.PI);
+                    ctx.fill();
+                },
+                tytul: 'Krok 6: Dodaj gradient, aby słońce wyglądało bardziej realistycznie'
+            },
+            {
+                rysuj: function() {
+                    // Efekt błysku
+                    ctx.beginPath();
+                    ctx.arc(85, 85, 10, 0, 2 * Math.PI);
+                    ctx.fillStyle = '#FFFFFF';
+                    ctx.globalAlpha = 0.3;
+                    ctx.fill();
+                    ctx.globalAlpha = 1.0;
+                },
+                tytul: 'Krok 7: Dodaj delikatny błysk, aby słońce wyglądało jaśniej'
+            }
+
+       
+        ];
+
+        function drawNextStep() {
+            currentStep++;   // zwiększ licznik kroków o 1
+            if (currentStep < steps.length) { //sprawdź czy nie doszliśmy do końca wszystkich kroków
+                steps[currentStep].rysuj();
+                document.getElementById('instruction').innerText = steps[currentStep].tytul; // zmień id instruction 
+                //na tytuł kolejnego kroku
+                updateProgress();  // wywołaj funkcję aktualizującą pasek postępu
+            }
+        }
+        //czyścimy płótno
+        function resetCanvas() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            currentStep = -1;                          //zresetuj licznik kroków do wartości początkowej
+            document.getElementById('instruction').innerText = 'Kliknij "Następny krok" aby zacząć!';
+            updateProgress();
+        }
+
+        function updateProgress() {
+            const progressEl = document.getElementById('progress'); //znajdź element HTML z id=progress i zapisz do zmiennej
+            if (currentStep >= 0) {
+                progressEl.innerText = `Postęp: ${currentStep + 1} z ${steps.length} kroków`;
+            } else {
+                progressEl.innerText = '';  //jeśli jeszcze nie zaczęliśmy (currentStep < 0)
+            }
+        }
+    </script>
+</body>
+
+</html>
